@@ -49,3 +49,11 @@ jobs:
       - name: Build site
         run: |
           R -e 'blogdown::build_site(TRUE)'
+      - name: Deploy to github 
+        run: |
+          git config user.name "GitHub Actions Bot"
+          git config user.email "<>"
+          mv public/* .
+          git checkout main
+          git commit -am "update website"
+          git push origin main
