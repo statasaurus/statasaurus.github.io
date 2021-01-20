@@ -51,6 +51,7 @@ jobs:
           R -e 'blogdown::build_site(TRUE)'
       - name: Deploy to github 
         run: |
+          git fetch
           git config user.name "GitHub Actions Bot"
           git config user.email "<>"
           mv public/* .
