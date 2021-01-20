@@ -49,11 +49,17 @@ jobs:
       - name: Build site
         run: |
           R -e 'blogdown::build_site(TRUE)'
+      - name: Fetch Main 
+        uses: actions/checkout@v2
+        with: 
+          ref: 'main'
+          path: 'main/'
       - name: Deploy to github 
         run: |
           git config user.name "GitHub Actions Bot"
           git config user.email "<>"
-          mv public/* .
-          git checkout -b main
+          cd main
+          git rm -rf .
+          rsync -avz  ../public/ .
           git commit -am "update website"
           git push --force origin main
