@@ -56,4 +56,4 @@ jobs:
           mv public/* .
           git checkout -b main
           git commit -am "update website"
-          git push origin main
+          git push --force origin main
