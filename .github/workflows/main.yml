@@ -56,10 +56,11 @@ jobs:
           path: 'main/'
       - name: Deploy to github 
         run: |
+          cd main
           git config user.name "GitHub Actions Bot"
           git config user.email "<>"
-          cd main
           git rm -rf .
           rsync -avz  ../public/ .
-          git commit -am "update website"
+          git add .
+          git commit -m "update website"
           git push --force origin main
