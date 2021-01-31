@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Hugo 0.80.0" />
+
+
+<title>Expanding Dates for Groups with Differing Date Ranges - A Hugo website</title>
+<meta property="og:title" content="Expanding Dates for Groups with Differing Date Ranges - A Hugo website">
+
+
+  <link href='/favicon.ico' rel='icon' type='image/x-icon'/>
+
+
+
+  
+
+
+
+
+
+
+
+
+<link href='//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css' rel='stylesheet' type='text/css' />
+
+
+
+<link rel="stylesheet" href="/css/fonts.css" media="all">
+<link rel="stylesheet" href="/css/main.css" media="all">
+
+
+
+  </head>
+  <body>
+    <div class="wrapper">
+      <header class="header">
+        <nav class="nav">
+  <a href="/" class="nav-logo">
+    <img src="/images/logo.png"
+         width="50"
+         height="50"
+         alt="Logo">
+  </a>
+
+  <ul class="nav-links">
+    
+    <li><a href="/about/">About</a></li>
+    
+    <li><a href="https://github.com/statasaurus">GitHub</a></li>
+    
+    <li><a href="https://twitter.com/statasaurus1">Twitter</a></li>
+    
+  </ul>
+</nav>
+
+      </header>
+
+
+<main class="content" role="main">
+
+  <article class="article">
+    
+    <span class="article-duration">4 min read</span>
+    
+
+    <h1 class="article-title">Expanding Dates for Groups with Differing Date Ranges</h1>
+
+    
+    <span class="article-date">2021-01-31</span>
+    
+
+    <div class="article-content">
+      
+
+
+<p>Since the start of the pandemic I have been working on and off on covid data. One of the defining features of these data sets is the start date for each country is different. We are looking at events that happen after the start of the pandemic, but covid reached each country at different times so we end up with a data set that looks something like this:</p>
+<pre class="r"><code>library(dplyr)
+library(tidyr)
+library(lubridate)
+library(ggplot2)
+library(purrr)
+library(rbenchmark)
+
+data&lt;- tribble(
+  ~country,         ~event_date,   ~count,
+  &quot;United Kingdom&quot;,  &quot;3/08/2020&quot;,      1,
+  &quot;United Kingdom&quot;,  &quot;4/15/2020&quot;,      2,
+  &quot;United Kingdom&quot;,  &quot;6/23/2020&quot;,      3,
+  &quot;United Kingdom&quot;,  &quot;7/03/2020&quot;,      4,
+  &quot;United Kingdom&quot;,  &quot;10/31/2020&quot;,     5,
+  &quot;South Africa&quot;,    &quot;6/14/2020&quot;,      1,
+  &quot;South Africa&quot;,    &quot;8/06/2020&quot;,      2,
+  &quot;South Africa&quot;,    &quot;9/23/2020&quot;,      3,
+  &quot;South Africa&quot;,    &quot;12/31/2020&quot;,     4,
+  &quot;Italy&quot;,          &quot;2/16/2020&quot;,       5,
+  &quot;Italy&quot;,          &quot;3/09/2020&quot;,       6,
+  &quot;Italy&quot;,          &quot;8/27/2020&quot;,       7,
+  &quot;Italy&quot;,          &quot;10/18/2020&quot;,      8,
+  &quot;Italy&quot;,          &quot;11/30/2020&quot;,      9
+) %&gt;% 
+  mutate(event_date = mdy(event_date),
+         count = as.integer(count))</code></pre>
+<p>If we plot the data like this it will display incorrectly. With only event data, ggplot assumes linear connections between time points, which is misleading for this data.</p>
+<pre class="r"><code>ggplot(data, aes(x = event_date, y = count, color = country)) + 
+  geom_line() +
+  guides(color = guide_legend(&quot;Country&quot;)) +
+  scale_y_continuous(breaks=seq(1, 10, by = 2)) + 
+  xlab(&quot;Country&quot;) +
+  ylab(&quot;Count&quot;) +
+  theme_bw() </code></pre>
+<p><img src="/2021/01/31/expanding-dates-for-groups-with-differing-date-ranges/index_files/figure-html/unnamed-chunk-2-1.png" width="672" />
+One option is to convert the data from continuous to discrete. But, this can make it harder to make summaries across groups later. The other option is to convert the data from event based, to weekly. This will make it easier to use in future calculations and will improve the graph. Tidyr has some nice functions which makes this easy.</p>
+<pre class="r"><code>min_date &lt;- data %&gt;% pull(event_date) %&gt;% min()
+max_date &lt;- data %&gt;% pull(event_date) %&gt;% max()
+
+
+data_weekly &lt;- data %&gt;% 
+  complete(event_date = seq(min_date, max_date, by = &quot;week&quot;),
+           nesting(country)) %&gt;% 
+  group_by(country) %&gt;% 
+  arrange(country, event_date) %&gt;% 
+  fill(count, .direction = &quot;down&quot;) %&gt;% 
+  rename(date = event_date)
+
+head(data_weekly)</code></pre>
+<pre><code>## # A tibble: 6 x 3
+## # Groups:   country [1]
+##   date       country count
+##   &lt;date&gt;     &lt;chr&gt;   &lt;int&gt;
+## 1 2020-02-16 Italy       5
+## 2 2020-02-23 Italy       5
+## 3 2020-03-01 Italy       5
+## 4 2020-03-08 Italy       5
+## 5 2020-03-09 Italy       6
+## 6 2020-03-15 Italy       6</code></pre>
+<p>Now, we have weekly counts for each country. But, if we look at South Africa there are a few weeks with missing data.</p>
+<pre><code>## # A tibble: 6 x 3
+## # Groups:   country [1]
+##   date       country      count
+##   &lt;date&gt;     &lt;chr&gt;        &lt;int&gt;
+## 1 2020-02-16 South Africa    NA
+## 2 2020-02-23 South Africa    NA
+## 3 2020-03-01 South Africa    NA
+## 4 2020-03-08 South Africa    NA
+## 5 2020-03-15 South Africa    NA
+## 6 2020-03-22 South Africa    NA</code></pre>
+<p>This is because South Africa didn’t have their first event in the pandemic until June, but our starting date was in February. We can just remove the missing values afterwards, but I always find that a bit sloppy. So instead, we need to nest the country level information prior to filling in the dates.</p>
+<pre class="r"><code>data_weekly2 &lt;- data %&gt;% 
+  nest(data = c(event_date, count)) %&gt;% 
+  mutate(data = map(data, function(x){
+    min_date &lt;- x %&gt;% pull(event_date) %&gt;% min()
+    max_date &lt;- x %&gt;% pull(event_date) %&gt;% max()
+    x %&gt;% 
+      complete(event_date = seq(min_date, max_date, by = &quot;week&quot;)) %&gt;%
+      arrange(event_date) %&gt;% 
+      fill(count, .direction = &quot;down&quot;)
+  })) %&gt;% 
+  unnest(data) %&gt;% 
+  rename(date = event_date)</code></pre>
+<p>If we look at South Africa again now we don’t see the missing values from before.</p>
+<pre><code>## # A tibble: 6 x 3
+##   country      date       count
+##   &lt;chr&gt;        &lt;date&gt;     &lt;int&gt;
+## 1 South Africa 2020-06-14     1
+## 2 South Africa 2020-06-21     1
+## 3 South Africa 2020-06-28     1
+## 4 South Africa 2020-07-05     1
+## 5 South Africa 2020-07-12     1
+## 6 South Africa 2020-07-19     1</code></pre>
+<p>Instead the count starts in June when the first event occurs.</p>
+<p>Now if we go back to the original plot, we can see how it displays the information more accurately.</p>
+<pre class="r"><code>ggplot(data_weekly2, aes(x = date, y = count, color = country)) + 
+  geom_line() +
+  guides(color = guide_legend(&quot;Country&quot;)) +
+  scale_y_continuous(breaks=seq(1, 10, by = 2)) + 
+  xlab(&quot;Country&quot;) +
+  ylab(&quot;Count&quot;) +
+  ggtitle(&quot;Count Data&quot;) + 
+  theme_bw() </code></pre>
+<p><img src="/2021/01/31/expanding-dates-for-groups-with-differing-date-ranges/index_files/figure-html/unnamed-chunk-7-1.png" width="672" /></p>
+
+    </div>
+  </article>
+
+  
+
+
+</main>
+
+      <footer class="footer">
+        <ul class="footer-links">
+          <li>
+            <a href="/index.xml" type="application/rss+xml" target="_blank">RSS feed</a>
+          </li>
+          <li>
+            <a href="https://gohugo.io/" class="footer-links-kudos">Made with <img src="/images/hugo-logo.png" alt="Img link to Hugo website" width="22" height="22"></a>
+          </li>
+        </ul>
+      </footer>
+
+    </div>
+    
+
+
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+
+
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/r.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/yaml.min.js"></script>
+<script>hljs.configure({languages: []}); hljs.initHighlightingOnLoad();</script>
+
+
+
+    
+
+    
+  </body>
+</html>
+
