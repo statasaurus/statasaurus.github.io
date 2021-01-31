@@ -1,0 +1,123 @@
+---
+title: Expanding Dates for Groups with Differing Date Ranges
+author: R package build
+date: '2021-01-31'
+slug: expanding-dates-for-groups-with-differing-date-ranges
+categories:
+  - tidy-data
+tags:
+  - ggplot
+  - tidyr
+---
+
+
+Since the start of the pandemic I have been working on and off on covid data. One of the defining features of these data sets is the start date for each country is different. We are looking at events that happen after the start of the pandemic, but covid reached each country at different times so we end up with a data set that looks something like this: 
+```{r message=FALSE}
+library(dplyr)
+library(tidyr)
+library(lubridate)
+library(ggplot2)
+library(purrr)
+library(rbenchmark)
+
+data<- tribble(
+  ~country,         ~event_date,   ~count,
+  "United Kingdom",  "3/08/2020",      1,
+  "United Kingdom",  "4/15/2020",      2,
+  "United Kingdom",  "6/23/2020",      3,
+  "United Kingdom",  "7/03/2020",      4,
+  "United Kingdom",  "10/31/2020",     5,
+  "South Africa",    "6/14/2020",      1,
+  "South Africa",    "8/06/2020",      2,
+  "South Africa",    "9/23/2020",      3,
+  "South Africa",    "12/31/2020",     4,
+  "Italy",          "2/16/2020",       5,
+  "Italy",          "3/09/2020",       6,
+  "Italy",          "8/27/2020",       7,
+  "Italy",          "10/18/2020",      8,
+  "Italy",          "11/30/2020",      9
+) %>% 
+  mutate(event_date = mdy(event_date),
+         count = as.integer(count))
+
+```
+
+
+
+If we plot the data like this it will display incorrectly. With only event data, ggplot assumes linear connections between time points, which is misleading for this data. 
+```{r}
+ggplot(data, aes(x = event_date, y = count, color = country)) + 
+  geom_line() +
+  guides(color = guide_legend("Country")) +
+  scale_y_continuous(breaks=seq(1, 10, by = 2)) + 
+  xlab("Country") +
+  ylab("Count") +
+  theme_bw() 
+```
+One option is to convert the data from continuous to discrete. But, this can make it harder to make summaries across groups later. The other option is to convert the data from event based, to weekly. This will make it easier to use in future calculations and will improve the graph. Tidyr has some nice functions which makes this easy. 
+
+```{r}
+min_date <- data %>% pull(event_date) %>% min()
+max_date <- data %>% pull(event_date) %>% max()
+
+
+data_weekly <- data %>% 
+  complete(event_date = seq(min_date, max_date, by = "week"),
+           nesting(country)) %>% 
+  group_by(country) %>% 
+  arrange(country, event_date) %>% 
+  fill(count, .direction = "down") %>% 
+  rename(date = event_date)
+
+head(data_weekly)
+
+```
+Now, we have weekly counts for each country. But, if we look at South Africa there are a few weeks with missing data. 
+
+```{r, echo = FALSE}
+data_weekly %>% 
+  filter(country == "South Africa") %>% 
+  head()
+```
+
+This is because South Africa didn't have their first event in the pandemic until June, but our starting date was in February. We can just remove the missing values afterwards, but I always find that a bit sloppy. So instead, we need to nest the country level information prior to filling in the dates. 
+
+```{r}
+
+
+data_weekly2 <- data %>% 
+  nest(data = c(event_date, count)) %>% 
+  mutate(data = map(data, function(x){
+    min_date <- x %>% pull(event_date) %>% min()
+    max_date <- x %>% pull(event_date) %>% max()
+    x %>% 
+      complete(event_date = seq(min_date, max_date, by = "week")) %>%
+      arrange(event_date) %>% 
+      fill(count, .direction = "down")
+  })) %>% 
+  unnest(data) %>% 
+  rename(date = event_date)
+
+
+```
+
+If we look at South Africa again now we don't see the missing values from before. 
+```{r, echo = FALSE}
+data_weekly2 %>% 
+  filter(country == "South Africa") %>% 
+  head()
+```
+Instead the count starts in June when the first event occurs. 
+
+Now if we go back to the original plot, we can see how it displays the information more accurately. 
+```{r}
+ggplot(data_weekly2, aes(x = date, y = count, color = country)) + 
+  geom_line() +
+  guides(color = guide_legend("Country")) +
+  scale_y_continuous(breaks=seq(1, 10, by = 2)) + 
+  xlab("Country") +
+  ylab("Count") +
+  ggtitle("Count Data") + 
+  theme_bw() 
+```
+
