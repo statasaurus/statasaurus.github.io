@@ -76,9 +76,9 @@
 
 
 <p>One of the rather idiosyncratic things about working in pharma (although I am sure this is true for other highly regulated environments) is systems stay around for a while before they are replaced. Because of these old systems, this week I ran into the need to read in a bunch of tables from an xml document. For those who have never used an xml document, technically there isn’t such as thing as a table, but style sheets can be used to create tables. So you get something that looks like this when the xml is opened in a browser:
-<img src="images/xml_tbl.png" />
-But, if you look at xml in a text editor you get something like this:
-<img src="images/xml_code.png" /></p>
+<img src="images/xml_tbl.png" /></p>
+<p>But, if you look at xml in a text editor you get something like this:</p>
+<p><img src="images/xml_code.png" /></p>
 <p>There are two main packages in R to handle xml files, XML and xml2. XML is the older package and contains a bunch of functions. xml2 is the RStudio backed xml package. It has fewer functions, but it quite slick with good documentation.</p>
 <p>I stuck with XML for my project because I found it easier to navigate the XML file I was using.
 The first step to reading in your table is to read in the document using the xmlParse function.</p>
