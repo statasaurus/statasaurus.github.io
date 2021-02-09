@@ -17,7 +17,7 @@ tags:
 <img src="images/xml_tbl.png" /></p>
 <p>But, if you look at xml in a text editor you get something like this:</p>
 <p><img src="images/xml_code.png" /></p>
-<p>There are two main packages in R to handle xml files, XML and xml2. XML is the older package and contains a bunch of functions. xml2 is the RStudio backed xml package. It has fewer functions, but it quite slick with good documentation.</p>
+<p>There are two main packages in R to handle xml files, XML and xml2. XML is the older package and contains a bunch of functions. xml2 is the RStudio backed xml package. It has fewer functions, but it is quite slick with good documentation.</p>
 <p>I stuck with XML for my project because I found it easier to navigate the XML file I was using.
 The first step to reading in your table is to read in the document using the xmlParse function.</p>
 <pre class="r"><code>library(XML)
@@ -84,4 +84,4 @@ For the names we will use the <code>xmlAttrs</code> function to get the name att
 ## 5    Hafsah Downs     cat  Norwegian Forest Cat   2  Cashew
 ## 6     Carrie Pope     dog    Labrador Retriever   1   Chase
 ## 7    Jim Chandler  turtle Yellow-Bellied Slider  20    Otis</code></pre>
-<p>With these functions (along with <code>xmlValue</code>, which can be quite helpful), you can parse most xml’s you’ll run across. I think the biggest thing I learned when working with xml, is to look at the data. Cause xml is a tree, if you get the wrong branch nothing will make sense. So looking at the data is super helpful when debugging the xpath and when figuing out what information is an element and what is an attribute.</p>
+<p>With these functions (along with <code>xmlValue</code>, which can be quite helpful), you can parse most xml’s you’ll run across. I think the biggest thing I learned when working with xml, is to look at the data. Cause xml is a tree, if you get the wrong branch nothing will make sense. So looking at the data is super helpful when debugging the xpath and when figuring out what information is an element and what is an attribute.</p>

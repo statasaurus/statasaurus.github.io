@@ -18,7 +18,7 @@ But, if you look at xml in a text editor you get something like this:
 
 ![](images/xml_code.png)
 
-There are two main packages in R to handle xml files, XML and xml2. XML is the older package and contains a bunch of functions. xml2 is the RStudio backed xml package. It has fewer functions, but it quite slick with good documentation. 
+There are two main packages in R to handle xml files, XML and xml2. XML is the older package and contains a bunch of functions. xml2 is the RStudio backed xml package. It has fewer functions, but it is quite slick with good documentation. 
 
 I stuck with XML for my project because I found it easier to navigate the XML file I was using. 
 The first step to reading in your table is to read in the document using the xmlParse function. 
@@ -65,4 +65,4 @@ xmlToDataFrame(nodes = pet_list) %>%
            map_chr(xmlAttrs, "name"))
 ```
 
-With these functions (along with `xmlValue`, which can be quite helpful), you can parse most xml's you'll run across. I think the biggest thing I learned when working with xml, is to look at the data. Cause xml is a tree, if you get the wrong branch nothing will make sense. So looking at the data is super helpful when debugging the xpath and when figuing out what information is an element and what is an attribute. 
+With these functions (along with `xmlValue`, which can be quite helpful), you can parse most xml's you'll run across. I think the biggest thing I learned when working with xml, is to look at the data. Cause xml is a tree, if you get the wrong branch nothing will make sense. So looking at the data is super helpful when debugging the xpath and when figuring out what information is an element and what is an attribute. 
