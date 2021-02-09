@@ -6,7 +6,16 @@
     <description>Recent content on A Hugo website</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sun, 31 Jan 2021 00:00:00 +0000</lastBuildDate><atom:link href="/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sun, 07 Feb 2021 00:00:00 +0000</lastBuildDate><atom:link href="/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Reading in Tables from XML Documents</title>
+      <link>/2021/02/07/reading-in-tables-from-xml-documents/</link>
+      <pubDate>Sun, 07 Feb 2021 00:00:00 +0000</pubDate>
+      
+      <guid>/2021/02/07/reading-in-tables-from-xml-documents/</guid>
+      <description>One of the rather idiosyncratic things about working in pharma (although I am sure this is true for other highly regulated environments) is systems stay around for a while before they are replaced. Because of these old systems, this week I ran into the need to read in a bunch of tables from an xml document. For those who have never used an xml document, technically there isn’t such as thing as a table, but style sheets can be used to create tables.</description>
+    </item>
+    
     <item>
       <title>Expanding Dates for Groups with Differing Date Ranges</title>
       <link>/2021/01/31/expanding-dates-for-groups-with-differing-date-ranges/</link>

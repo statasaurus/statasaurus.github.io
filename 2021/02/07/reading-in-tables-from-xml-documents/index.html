@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Hugo 0.80.0" />
+
+
+<title>Reading in Tables from XML Documents - A Hugo website</title>
+<meta property="og:title" content="Reading in Tables from XML Documents - A Hugo website">
+
+
+  <link href='/favicon.ico' rel='icon' type='image/x-icon'/>
+
+
+
+  
+
+
+
+
+
+
+
+
+<link href='//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css' rel='stylesheet' type='text/css' />
+
+
+
+<link rel="stylesheet" href="/css/fonts.css" media="all">
+<link rel="stylesheet" href="/css/main.css" media="all">
+
+
+
+  </head>
+  <body>
+    <div class="wrapper">
+      <header class="header">
+        <nav class="nav">
+  <a href="/" class="nav-logo">
+    <img src="/images/logo.png"
+         width="50"
+         height="50"
+         alt="Logo">
+  </a>
+
+  <ul class="nav-links">
+    
+    <li><a href="/about/">About</a></li>
+    
+    <li><a href="https://github.com/statasaurus">GitHub</a></li>
+    
+    <li><a href="https://twitter.com/statasaurus1">Twitter</a></li>
+    
+  </ul>
+</nav>
+
+      </header>
+
+
+<main class="content" role="main">
+
+  <article class="article">
+    
+    <span class="article-duration">4 min read</span>
+    
+
+    <h1 class="article-title">Reading in Tables from XML Documents</h1>
+
+    
+    <span class="article-date">2021-02-07</span>
+    
+
+    <div class="article-content">
+      
+
+
+<p>One of the rather idiosyncratic things about working in pharma (although I am sure this is true for other highly regulated environments) is systems stay around for a while before they are replaced. Because of these old systems, this week I ran into the need to read in a bunch of tables from an xml document. For those who have never used an xml document, technically there isn’t such as thing as a table, but style sheets can be used to create tables. So you get something that looks like this when the xml is opened in a browser:
+<img src="images/xml_tbl.png" />
+But, if you look at xml in a text editor you get something like this:
+<img src="images/xml_code.png" /></p>
+<p>There are two main packages in R to handle xml files, XML and xml2. XML is the older package and contains a bunch of functions. xml2 is the RStudio backed xml package. It has fewer functions, but it quite slick with good documentation.</p>
+<p>I stuck with XML for my project because I found it easier to navigate the XML file I was using.
+The first step to reading in your table is to read in the document using the xmlParse function.</p>
+<pre class="r"><code>library(XML)
+library(purrr)
+library(dplyr)
+doc &lt;- xmlParse(&quot;data/document.xml&quot;)
+class(doc)</code></pre>
+<pre><code>## [1] &quot;XMLInternalDocument&quot; &quot;XMLAbstractDocument&quot;</code></pre>
+<p>This creates an XMLInternalDocument, which we can get information from.</p>
+<p>Before we can get too far into making a dataframe out of the xml file, we need to understand a bit more about how xml files are structured. Basically, xml files are just trees. Everything in the xml is part of the tree and you need to use xpath, the xml selection language, in order to find the branch/leaf you are looking for.</p>
+<p>From looking at the xml file we can see catalog is the highest level in the tree, followed by pet, and then information about the pet.</p>
+<p>For my table I want get all the pet information in the pet lowest node. So I am going to use the <code>getNodeSet</code> function, which will return a list of nodes. In this case each node will be all the information about one pet</p>
+<pre class="r"><code>pet_list &lt;- getNodeSet(doc, &quot;//catalog/pet&quot;)
+pet_list[[1]]</code></pre>
+<pre><code>## &lt;pet&gt;
+##   &lt;name&gt;Mittens&lt;/name&gt;
+##   &lt;owner&gt;Isabelle Khan&lt;/owner&gt;
+##   &lt;species&gt;cat&lt;/species&gt;
+##   &lt;breed&gt;Scottish fold&lt;/breed&gt;
+##   &lt;age&gt;4&lt;/age&gt;
+## &lt;/pet&gt;</code></pre>
+<p>Now that I have all the nodes I want in list I am able to convert the list to a dataframe using <code>xmlToDataFrame</code>.</p>
+<pre class="r"><code>xmlToDataFrame(nodes = pet_list)</code></pre>
+<pre><code>##      name           owner species                 breed age
+## 1 Mittens   Isabelle Khan     cat         Scottish fold   4
+## 2    Cody Layton Claytonn     dog                Collie   8
+## 3   Arrow  Chihiro Yamada    bird           Grey Parrot  14
+## 4     Jim     Alex Miller     cat     British Shorthair   4
+## 5  Cashew    Hafsah Downs     cat  Norwegian Forest Cat   2
+## 6   Chase     Carrie Pope     dog    Labrador Retriever   1
+## 7    Otis    Jim Chandler  turtle Yellow-Bellied Slider  20</code></pre>
+<p>More complicated xml documents will split information between attributes and elements. In this dummy example we can see the name, which was an element before is now a name attribute.</p>
+<pre class="r"><code>mix_doc &lt;- xmlParse(&quot;data/document2.xml&quot;)
+pet_list &lt;- getNodeSet(mix_doc, &quot;//catalog/pet&quot;)
+pet_list[1]</code></pre>
+<pre><code>## [[1]]
+## &lt;pet name=&quot;Mittens&quot;&gt;
+##   &lt;owner&gt;Isabelle Khan&lt;/owner&gt;
+##   &lt;species&gt;cat&lt;/species&gt;
+##   &lt;breed&gt;Scottish fold&lt;/breed&gt;
+##   &lt;age&gt;4&lt;/age&gt;
+## &lt;/pet&gt;</code></pre>
+<p>This means that if we do the same thing we did above, we would not get the pet’s name in our dataset.</p>
+<pre class="r"><code>xmlToDataFrame(nodes = pet_list)</code></pre>
+<pre><code>##             owner species                 breed age
+## 1   Isabelle Khan     cat         Scottish fold   4
+## 2 Layton Claytonn     dog                Collie   8
+## 3  Chihiro Yamada    bird           Grey Parrot  14
+## 4     Alex Miller     cat     British Shorthair   4
+## 5    Hafsah Downs     cat  Norwegian Forest Cat   2
+## 6     Carrie Pope     dog    Labrador Retriever   1
+## 7    Jim Chandler  turtle Yellow-Bellied Slider  20</code></pre>
+<p>To get the pet’s name we will need to get the information from the attribute as well as the elements.
+For the names we will use the <code>xmlAttrs</code> function to get the name attribute from each node. Unlike, the <code>xmlToDataFrame</code> function <code>xmlAttrs</code> expects a node rather than a node set. To ensure only a node is passed we will use <code>map_chr</code> with <code>xmlAttrs</code> to get the names out.</p>
+<p>For the information in the elements, we can use the <code>xmlToDataFrame</code> as before.</p>
+<pre class="r"><code>xmlToDataFrame(nodes = pet_list) %&gt;% 
+  mutate(pet = pet_list %&gt;% 
+           map_chr(xmlAttrs, &quot;name&quot;))</code></pre>
+<pre><code>##             owner species                 breed age     pet
+## 1   Isabelle Khan     cat         Scottish fold   4 Mittens
+## 2 Layton Claytonn     dog                Collie   8    Cody
+## 3  Chihiro Yamada    bird           Grey Parrot  14   Arrow
+## 4     Alex Miller     cat     British Shorthair   4     Jim
+## 5    Hafsah Downs     cat  Norwegian Forest Cat   2  Cashew
+## 6     Carrie Pope     dog    Labrador Retriever   1   Chase
+## 7    Jim Chandler  turtle Yellow-Bellied Slider  20    Otis</code></pre>
+<p>With these functions (along with <code>xmlValue</code>, which can be quite helpful), you can parse most xml’s you’ll run across. I think the biggest thing I learned when working with xml, is to look at the data. Cause xml is a tree, if you get the wrong branch nothing will make sense. So looking at the data is super helpful when debugging the xpath and when figuing out what information is an element and what is an attribute.</p>
+
+    </div>
+  </article>
+
+  
+
+
+</main>
+
+      <footer class="footer">
+        <ul class="footer-links">
+          <li>
+            <a href="/index.xml" type="application/rss+xml" target="_blank">RSS feed</a>
+          </li>
+          <li>
+            <a href="https://gohugo.io/" class="footer-links-kudos">Made with <img src="/images/hugo-logo.png" alt="Img link to Hugo website" width="22" height="22"></a>
+          </li>
+        </ul>
+      </footer>
+
+    </div>
+    
+
+
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+
+
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/r.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/yaml.min.js"></script>
+<script>hljs.configure({languages: []}); hljs.initHighlightingOnLoad();</script>
+
+
+
+    
+
+    
+  </body>
+</html>
+
