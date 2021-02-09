@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="style.xsl"?>
+<catalog>
+  <pet name = "Mittens">
+    <owner>Isabelle Khan</owner>
+    <species>cat</species>
+    <breed>Scottish fold</breed>
+    <age>4</age>
+  </pet>
+  <pet name = "Cody">
+    <owner>Layton Claytonn</owner>
+    <species>dog</species>
+    <breed>Collie</breed>
+    <age>8</age>
+  </pet>
+  <pet name = "Arrow">
+    <owner>Chihiro Yamada</owner>
+    <species>bird</species>
+    <breed>Grey Parrot</breed>
+    <age>14</age>
+  </pet>
+  <pet name = "Jim">
+    <owner>Alex Miller</owner>
+    <species>cat</species>
+    <breed>British Shorthair</breed>
+    <age>4</age>
+  </pet>
+  <pet name = "Cashew">
+    <owner>Hafsah Downs</owner>
+    <species>cat</species>
+    <breed>Norwegian Forest Cat</breed>
+    <age>2</age>
+  </pet>
+  <pet name = "Chase">
+    <owner>Carrie Pope</owner>
+    <species>dog</species>
+    <breed>Labrador Retriever</breed>
+    <age>1</age>
+  </pet>
+  <pet name = "Otis">
+    <owner>Jim Chandler</owner>
+    <species>turtle</species>
+    <breed>Yellow-Bellied Slider</breed>
+    <age>20</age>
+  </pet>
+</catalog>
+
