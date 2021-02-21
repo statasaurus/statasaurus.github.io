@@ -14,7 +14,7 @@ My name is Christina Fillmore. I am a statistician turned data scientist. This i
     {{ range first 3 (sort .Data.Pages "Date" "desc" (where .Pages ".Params.private" "!=" true))}}
         <div class="post">
             <p>
-                <div class="date">{{ .PublishDate.Format "Jan. 2, 2006" }}</div>
+                <div class="date">{{ .PublishDate.Format "2021-02-18" }}</div>
                 <h1><a href="{{ .Permalink }}" title="{{ .Title }}">{{ .Title }}</a></h1>
                 {{ .Summary }}
             </p>

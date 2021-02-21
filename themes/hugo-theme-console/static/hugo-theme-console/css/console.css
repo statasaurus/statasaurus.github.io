@@ -38,7 +38,7 @@
     --global-line-height: 1.6em;
     --page-width: 70em;
     --display-h1-decoration: 1;
-    --code-bg-color: #c9eb81;
+    --code-bg-color: #daf2c2;
 }
 
 @media only screen and (max-width: 850px) {
@@ -58,7 +58,7 @@
 }
 
 .box-masonry .box-masonry-image {
-    background: #c9eb81;
+    background: #daf2c2;
 }
 
 .box-masonry,
@@ -73,7 +73,7 @@
 body {
     font-family: var(--font-stack);
     font-size: var(--global-font-size);
-    background-color: #c9eb81;
+    background-color: #daf2c2;
     margin-bottom: 75px;
 }
 
