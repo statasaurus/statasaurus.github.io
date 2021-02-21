@@ -1,0 +1,389 @@
+---
+title: ANOVA for Visual Learners
+author: Christina Fillmore
+date: '2021-02-18'
+slug: anova-for-visual-learners
+categories:
+  - statistics
+tags:
+  - ANOVA
+draft: true 
+---
+
+
+```{r setup, echo = FALSE, include = FALSE}
+# Library calls and functions I will use later 
+library(dplyr)
+library(ggplot2)
+library(cowplot)
+# Get my standard plot options 
+source("../../plot_options.R")
+set.seed(12368)
+
+#' Create dummy data 
+#' creates dummy data for this blog post 
+#'@param n number of data points 
+#' @param size two means 
+#' @param prob two sd 
+#'
+create_dummy_df <- function(n = 10, size = c(15, 15), prob = c(0.75, 0.55)){
+  grp1 <- rnbinom(n = n, size = size[1], prob = prob[1])
+  grp2 <- rnbinom(n = n, size = size[2], prob = prob[2])
+  plot_df <- tibble(y = c(grp1, grp2),
+                    grp = c(rep("1", n), rep("2", n))) %>% 
+    mutate(subj_id = sample(seq(1,n*2), n*2, replace = FALSE))
+  
+}
+
+#' Variance pie chart 
+#'
+#' @param df data set to plot 
+#'
+variance_pie <- function(df){
+  # Get the total sum of square 
+  ss_total <- df %>% 
+    mutate(overall_mean = mean(y),
+           overall_res = (y-overall_mean)^2) %>% 
+    summarise(ss_total= sum(overall_res)) %>% 
+    pull(ss_total)
+  # Get the between sum of square 
+  ss_beween <- df %>%
+    mutate(overall_mean = mean(y)) %>% 
+    group_by(grp, overall_mean) %>% 
+    summarise(grp_mean = mean(y),
+              n = n(), .groups = "drop") %>% 
+    summarise(ss_between = sum(n *(grp_mean-overall_mean)^2)) %>% 
+    pull(ss_between)
+  # Get the proportion of variance explained by the groups 
+  eta_sqr <- ss_beween/ ss_total
+  variance_chart <- tibble(type = c("Explained", "Unexplained"), 
+                           percentage = c(eta_sqr*100, (1-eta_sqr)*100)) %>% 
+    arrange(desc(type)) %>%
+    mutate(position = cumsum(percentage) - 0.5*percentage )
+  
+  variance_chart %>% 
+    ggplot(aes(x = "", y = percentage, fill= type)) +
+    geom_bar(width = 1, stat = "identity", alpha = 0.75) +
+    coord_polar("y", start=0) + 
+    geom_text(aes(y = position,
+                  label = paste0(round(percentage), "%")), color = "white") +
+    scale_fill_blog("hot") +
+    guides(fill = guide_legend("Variance")) +
+    theme_void() 
+}
+
+prob_plot <- function(df){
+  aov_result <- aov(y ~ grp, data = df) 
+  sum_aov<- summary(aov_result)
+  f <- sum_aov[[1]]$`F value`[1]
+  prob_tbl <- tibble(x = seq(0.1,25, by = 0.1), 
+                     prob = 1-pf(x, (2-1), aov_result$df.residual))
+  test <- 1-pf(f, (2-1), (20-2))
+  
+  prob_tbl %>% 
+    ggplot(aes(x=x, y=prob)) + 
+    geom_line(color = my_colors("black")) + 
+    ggtitle("Probability of Observing the Same Difference or More\nDue to Random Sampling If the Null Hypothesis is True") +
+    xlab("") +
+    annotate("segment", x = f, xend = f, y = 0, yend = test, color = my_colors("green"))+
+    annotate("text", x = if_else(f< 3, 4, f),  
+                                 y = test + 0.05, color = my_colors("green"), 
+             label = paste0("p = ", format(test, digits = 2)))+
+    my_theme() +
+    theme(plot.title = element_text(size = 10))
+}
+
+```
+
+
+Almost everything in this world has some variability. A bit of randomness that makes one flower different, one dog look different, and each person unique. In statistics, we leverage this randomness when creating models and testing hypotheses. This blog post is the first of a series visually working through different statistical models. I am going to start with ANOVA as it is one of the most basic models and often times the first model people are introduced to. 
+
+The basic question of the ANOVA model is, does the mean of group one equal to the mean of group two. You might be thinking, why would testing the means of two groups have anything to do with variance. And hey, that is a fair question. The reason they are connected, is because of the law of total variance, which basically says variance comes in two kinds, the explained and the unexplained. If we can figure out how much of the variance of the thing we are measuring is due to the groups (ie. explained) and how much of the variance is just random chance (i.e. unexplained) then can get the probability the two groups are the same. If that probability is low then we can reject the notion that the two groups are the same.
+
+### Example Data 
+Now as promised some plots. First let's start with the scenario where the groups are truly different and have a low variance. 
+```{r echo=FALSE}
+plot_df <- create_dummy_df()
+plot_df %>% 
+  ggplot(aes(y=y, x = subj_id)) +
+  geom_point(size = 3, color = my_colors("black")) +
+  xlab("Subject ID") + 
+  my_theme()
+
+```
+Looking at the plot there are 20 data points with a variability of `r var(plot_df$y) %>% round(1)`. It isn't super clear that two groups make up the data, but let's add some color to tell the two groups apart. 
+```{r echo = FALSE}
+plot_df %>% 
+  ggplot(aes(y=y, x = subj_id, color=grp)) +
+  geom_point(size = 3) +
+  scale_color_blog("cool") +
+  xlab("Subject ID") + 
+  guides(color = guide_legend("Group Number")) +
+  my_theme()
+```
+Now we can clearly see group 2 has higher values than group 1. This means that at least some of the variability we see in y can be explained by the groups! This happens all the time in real life. For example if I were to weight some apples and pineapples, the part of variability in the weights would be due to the fact that pineapples and apples are different fruits. So we can explain the part of the variability. The same is happening here. We measured y, which had a variability of `r var(plot_df$y) %>% round(1)`. From looking at the plot we can see it is like the groups are causing some of the variability, but now the question is how much. To answer that question we are going to need to do an Analysis Of VariAnce (ANOVA)
+
+
+The basic equation we use in ANOVA is: 
+
+$$ SS_{Total} = SS_{Explained}+SS_{Unexplained}$$
+
+Where $SS_*$ stands for sum of squares. 
+The **sum of square is a unscaled measure of variability**. 
+
+### Total Sum of Square
+Graphically, variability is just the distance between two points. So if we want to look at the total sum of squares, the first step is to get a sense of the how each point varies from the overall mean. We do this by getting the distance between each point and the mean. This distance is called the residual. Each residual is represented below on the plot, with an orange dashed line.  
+
+```{r SS Total, echo=FALSE}
+plot_df2 <- plot_df %>% 
+  mutate(mean = mean(y), 
+         y1 = if_else(mean < y, mean, as.double(y)), 
+         y2 = if_else(mean >= y, mean,  as.double(y)))
+
+plot_df2 %>% 
+  ggplot() +
+  geom_hline(aes(yintercept = mean)) +
+  geom_segment(aes(x= subj_id, xend = subj_id, y = y2, yend=y1), linetype = 2, 
+               color = my_colors("orange")) +
+  geom_point(aes(y=y, x = subj_id), size = 3) +
+  xlab("Subject ID") + 
+  ylab("y")+
+  ggtitle("Overall Residuals") + 
+  my_theme()
+
+ss_total <- plot_df %>% 
+  mutate(overall_mean = mean(y),
+         overall_res = (y-overall_mean)^2) %>% 
+  summarise(ss_total= sum(overall_res)) %>% 
+  pull(ss_total)
+```
+To get a single number we are going to add up all the residuals, but because the residuals are always the value minus the mean ($r = y - \hat{y}$), we have to square this value so it is always positive. Adding together all of these squared residuals gives us the total deviation from the mean. 
+This values is the sum of square $SS_{Total}$. The equation for this is: 
+$$SS_{Total} = \sum{(X_{ij}-\bar{X})}$$
+<center>
+$SS_{Total} =$ `r ss_total`
+</center>
+
+### Unexpalined Sum of Square
+To calculate the unexplained variability we need to figure out how much deviation is left over when we do account for groups. We do this by measuring For the variance not explained by the groups. The calculation is basically the same as the $SS_{Total}$, but instead of using the overall mean we use the group means. We can see this graphically by drawing the within group residuals. 
+
+```{r SS Error, echo = FALSE}
+plot_df3 <- plot_df %>% 
+  mutate(mean = mean(y)) %>% 
+  group_by(grp) %>% 
+  mutate(mean = mean(y), 
+         y1 = if_else(mean < y, mean, as.double(y)), 
+         y2 = if_else(mean >= y, mean,  as.double(y)))
+
+
+plot_df3 %>% 
+  ggplot(aes(y=y, x = subj_id, color = grp)) +
+  geom_hline(aes(yintercept = mean, color = grp)) +
+  geom_segment(aes(x= subj_id, xend = subj_id, y = y2, yend=y1), linetype = 2) +
+  geom_point(size = 3) +
+  scale_color_blog("cool") +
+  guides(color = guide_legend("Group Number")) +
+  xlab("Subject ID") + 
+  ylab("y")+
+  ggtitle("Within Group Residuals") +
+  my_theme()
+ss_error <- plot_df %>% 
+  group_by(grp) %>%
+  mutate(grp_mean = mean(y),
+         grp_res = (y-grp_mean)^2) %>% 
+  ungroup() %>% 
+  summarise(ss_error= sum(grp_res)) %>% 
+  pull(ss_error)
+```
+
+
+This shows the unexplained variance because the difference between one groups mean and the overall mean is the explained variance. So, after account for the different means of each group, any left over variability is considered unexplained. As before, to get the sum of squares, we square each residual and sum them. The equation is as follows: 
+
+$$SS_{Unexplained} = \sum{(X_{ij}-\bar{X_j})}$$
+<center>
+$SS_{Unexplained} =$ `r ss_error`
+</center>
+The value is also call the sum of squares within groups, or sum of square of the error. 
+$$SS_{Unexplained} = SS_{Within} = SS_{Error}$$
+### Sum of Squares Explained
+The graphically the explained variance is the distance between the mean of the groups and the overall mean. We can create this by combining the two plots above and drawing our residual lines between the mean of the groups and the mean overall.
+```{r, echo = FALSE}
+plot_df4 <- plot_df %>%
+  mutate(overall_mean = mean(y)) %>% 
+  group_by(grp, overall_mean) %>% 
+  summarise(grp_mean = mean(y),
+            n = n(), .groups = "drop") %>%
+  mutate(y1 = if_else(overall_mean < grp_mean, overall_mean, grp_mean), 
+         y2 = if_else(overall_mean >= grp_mean, overall_mean,  grp_mean))
+
+plot_df4 %>% 
+  ggplot()+
+  geom_point(data = plot_df, aes(x=subj_id, y=y, color = grp), alpha = 0.4)+
+  geom_hline(aes(yintercept = grp_mean, color = grp))+
+  geom_hline(aes(yintercept = overall_mean), color = my_colors("black")) +
+  geom_segment(aes(x=as.numeric(grp)*4, xend = as.numeric(grp)*4, 
+                   y=y1, yend=y2, color = grp), linetype = 2)+
+  scale_color_blog("cool") +
+  guides(color = guide_legend("Group Number")) +
+  xlab("Subject ID") + 
+  ylab("y")+
+  ggtitle("Between Group Residuals") +
+  my_theme()
+
+ss_beween <- plot_df %>%
+  mutate(overall_mean = mean(y)) %>% 
+  group_by(grp, overall_mean) %>% 
+  summarise(grp_mean = mean(y),
+            n = n(), .groups = "drop") %>% 
+  summarise(ss_between = sum(n *(grp_mean-overall_mean)^2)) %>% 
+  pull(ss_between)
+
+```
+Just like the previous sum of squared equations, we need to square the residuals and add them up. The one difference, is because we are using means. Means contain information from multiple points, so we need to account for that by multiple by the number of subjects in each group. This makes the equation as follows: 
+
+$$SS_{Explained} = \sum{n_j(\bar{X_j}-\bar{X})}$$
+<center>
+$SS_{Explained} =$ `r ss_beween`
+</center>
+Now we have all the parts we can put them togther graphically and see how it works. The original equations is: 
+$$ SS_{Total} = SS_{Explained}+SS_{Unexplained}$$
+The sum of squared explained is also known as sum of squares between groups and sum of squares treatment. 
+$$SS_{Explained} = SS_{Between} = SS_{Treatment}$$
+
+### Sum of Squares Equation 
+If we follow a single subject we can see how this all adds together. 
+```{r Final SS, echo = FALSE}
+plot_df5 <- plot_df %>% 
+  mutate(overall_mean = mean(y)) %>% 
+  group_by(grp) %>% 
+  mutate(grp_mean = mean(y),
+         y1_res2 = if_else(grp_mean < overall_mean, grp_mean, overall_mean), 
+         y2_res2 = if_else(grp_mean >= overall_mean, grp_mean,  overall_mean), 
+         y1_res1 = if_else(grp_mean < as.double(y), grp_mean, as.double(y)), 
+         y2_res1 = if_else(grp_mean >= as.double(y), grp_mean,  as.double(y)))
+
+highlite <- plot_df5 %>% 
+  filter(subj_id == "8")
+
+plot <- plot_df5 %>% 
+  ggplot(aes(y=y, x = subj_id)) +
+  geom_hline(aes(yintercept = grp_mean, color = grp)) +
+  geom_segment(aes(x= subj_id, xend = subj_id,
+                   y = y1_res2, yend=y2_res2, color = grp), linetype = 3, alpha = 0.4) +
+  geom_hline(aes(yintercept = overall_mean), color = my_colors("black")) +
+  geom_segment(aes(x= subj_id, xend = subj_id,
+                   y = y1_res1, yend=y2_res1),  color = my_colors("black"),
+               linetype = 2, alpha = 0.4) +
+  geom_point(aes(color = grp), size = 3, alpha = 0.4) +
+  scale_color_blog("cool") +
+  guides(color = guide_legend("Group Number")) +
+  xlab("Subject ID") + 
+  ylab("y")+
+  my_theme()
+
+plot + 
+  annotate("segment", x= highlite$subj_id, xend = highlite$subj_id, 
+           y = highlite$y1_res1, yend = highlite$y2_res1, 
+           linetype = 2, color = my_colors("black")) +
+  annotate("segment", x= highlite$subj_id, xend = highlite$subj_id, 
+           y = highlite$y1_res2, yend = highlite$y2_res2, 
+           linetype = 3, color = my_colors("black")) +
+  annotate("point", x= highlite$subj_id, y= highlite$y, size = 3, color = my_colors("green")) + 
+  annotate("text", x = 6, y = highlite$y2_res1 - (highlite$y2_res1 - highlite$y1_res1)/2, 
+           label = "Unexplained\nVariance") +
+  annotate("text", x = 6, y = highlite$y2_res2 - (highlite$y2_res2 - highlite$y1_res2)/2, 
+           label = "Explained\nVariance")
+eta = paste0(round(ss_error/ss_total*100), "%")
+```
+From the first plot we saw that the $SS_{Total}$ is calculated by measuring the distance from the overall to a point. And we can see how the $SS_{Expained}$ and the $SS_{Unexpained}$ add together to equal the $SS_{Total}$ 
+
+With the basic sum of square equation defined we can start to answer our original question. 
+
+
+The first question of what proportion of the variance can be explained is solved by just taking the explained sum of squares as a proportion of the total sum of squares. This is usually called eta 
+$$\eta = \frac {SS_{Explained}} {SS_{Total}}$$
+So for this sample the groupings explain `r eta` of the observed variance. We can make a quick pie chat to show this: 
+```{r echo = FALSE}
+variance_pie(plot_df)
+
+```
+
+
+### ANOVA 
+Now that we understand how the variance can be separated, we can test if the two groups are the same. We do that by testing if the variance between groups is significantly larger than the variance within a group. Because we are testing if the groups are the same the null hypothesis is :
+$$ H_0 = \bar{X}_{grp 1} = \bar{X}_{grp 2}$$
+First, we need to scale our unscaled measures of variance. We do this my dividing the our sum of squares by their respective degrees of freedom. This is called the mean square error ($MS_*$) 
+Two values went into our calculation of $SS_{Explained}$, so we have $K-1 = 2-1 = 1$ the degrees of freedom. 
+Similarly we had 20 points to get 2 group means in our calculation of $SS_{Unexplained}$, so we have $N-K = 20 - 2 = 18$ degrees of freedom. 
+```{r, echo = FALSE}
+msb = ss_beween / (2-1)
+msw = ss_error /(20 -2)
+f = msb /msw 
+```
+
+$$MS_{Explained} = \frac{SS_{Explained}}{K-1}$$
+<center>
+$MS_{Explained} =$ `r msb`
+</center>
+$$MS_{Unexplained} = \frac{SS_{Unexplained}}{N-K}$$
+<center>
+$MS_{Explained} =$ `r msb`
+</center>
+Now with the mean squared error we can calculate the test statistic. The test statistic is the value we can plug into a distribution to get the probability of the null hypothesis. It is calculated by dividing the explained mean square error by the unexplained mean square error. 
+$$ F = \frac{SS_{Unexplained}}{SS_{Explained}}$$
+<center> 
+$F =$ `r round(f, 3)`
+</center> 
+```{r, echo = FALSE}
+prob_tbl <- tibble(x = seq(0.1,25, by = 0.1), 
+                   prob = 1-pf(x, (2-1), (20-2)))
+test <- 1-pf(f, (2-1), (20-2))
+test<- format(test, digits = 2)
+
+prob_tbl %>% 
+  ggplot(aes(x=x, y=prob)) + 
+  geom_line(color = my_colors("black")) + 
+  ylab("Probability of Observing the Same Difference or More\nDue to Random Sampling If the Null Hypothesis is True") +
+  annotate("segment", x = f, xend = f, y = 0, yend = 0.18, color = my_colors("green"))+
+  annotate("text", x = f,  y = 0.2, color = my_colors("green"), 
+           label = paste0("p = ", test))+
+  xlab("")+
+  my_theme()
+
+```
+
+As we can see from the plot, the probability of observing the difference due to random chance, assuming the group means are equal, is very low. Thus we can reject the null hypothesis and have finished our ANOVA. 
+
+### Additional Examples 
+Just to show these graphs do change with different conditions. 
+
+
+
+```{r, echo = FALSE}
+df2 <- create_dummy_df(prob = c(0.55, 0.55))
+plot1 <- df2 %>% 
+  ggplot(aes(y=y, x = subj_id, color=grp)) +
+  geom_point(size = 3) +
+  scale_color_blog("cool") +
+  xlab("Subject ID") + 
+  guides(color = guide_legend("Group Number")) +
+  my_theme()
+plot2 <- variance_pie(df2)
+plot3 <- prob_plot(df2)
+test <- plot_grid(plot2, plot3, labels = "")
+bottom_row <- plot_grid(plot2, plot3)
+plot_grid(plot1, bottom_row, ncol = 1)
+
+
+```
+
+If the samples have the same mean, then when we plot the data won't really see much of a pattern. This means the percentage of the variance explained by the groups is very low. And the result of the hypothesis test shows a high probability the observed results happened because of random sampling. 
+
+### Final Notes 
+ANOVA is fundamental to frequentist statistics. The theories it uses underpins most of the models you will run across. But there are two assumptions you need to be aware of: 
+
+* 1: **Homogeneity of variance**: which basically means the variance among the groups are about the same. There are formal tests for this, but it is also okay to just eye the within group residual plots. 
+* 2: **Assume Normal Data** : this can be tested by looking at a histogram of the observed data.
+
+
+
