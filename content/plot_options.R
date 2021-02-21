@@ -1,6 +1,13 @@
 # Creating a standard plot theme to be used across my website 
 my_theme <- function() {
-  theme_bw()
+  theme_bw() 
+    theme(
+      panel.background = element_rect(fill = my_colors("background"),colour = NA),
+      panel.border = element_rect(colour = my_colors("black"), fill = NA),
+      plot.background = element_rect(fill = my_colors("background"), colour = NA),
+      legend.background = element_rect(fill = my_colors("background"),colour = NA),
+      legend.key = element_rect(fill =  my_colors("background"), colour = NA)
+    )
 }
 
 # Creating a color palette to use this way if I change my hugo theme I can change all my plots 
@@ -20,7 +27,9 @@ my_colors <- function(...){
     `orange`     = "#F66456",
     `yellow`     = "#DBB129",
     `light brown` = "#B36642",
-    `black`  = "#233047")
+    `light grey` = "#827d7d",
+    `black`  = "#233047",
+    `background` = "#daf2c2")
   cols <- c(...)
   if(is.null(cols))
     return(my_colors)

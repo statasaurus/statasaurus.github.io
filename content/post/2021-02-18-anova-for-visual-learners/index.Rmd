@@ -71,7 +71,8 @@ variance_pie <- function(df){
                   label = paste0(round(percentage), "%")), color = "white") +
     scale_fill_blog("hot") +
     guides(fill = guide_legend("Variance")) +
-    theme_void() 
+    theme_void() +
+    my_theme()
 }
 
 prob_plot <- function(df){
