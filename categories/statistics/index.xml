@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>statistics on A Hugo website</title>
+    <link>/categories/statistics/</link>
+    <description>Recent content in statistics on A Hugo website</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Thu, 18 Feb 2021 00:00:00 +0000</lastBuildDate><atom:link href="/categories/statistics/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>ANOVA for Visual Learners</title>
+      <link>/2021/02/18/anova-for-visual-learners/</link>
+      <pubDate>Thu, 18 Feb 2021 00:00:00 +0000</pubDate>
+      
+      <guid>/2021/02/18/anova-for-visual-learners/</guid>
+      <description>Almost everything in this world has some variability. A bit of randomness that makes one flower different, one dog look different, and each person unique. In statistics, we leverage this randomness when creating models and testing hypotheses. This blog post is the first of a series visually working through different statistical models. I am going to start with ANOVA as it is one of the most basic models and often times the first model people are introduced to.</description>
+    </item>
+    
+  </channel>
+</rss>
