@@ -9,6 +9,8 @@ tags:
   - purrr
   - xml
   - benchmark
+summary: |
+  Reading in tables from XML documents using the XML and purrr packages.
 ---
 
 One of the rather idiosyncratic things about working in pharma (although I am sure this is true for other highly regulated environments) is systems stay around for a while before they are replaced. Because of these old systems, this week I ran into the need to read in a bunch of tables from an xml document. For those who have never used an xml document, technically there isn't such as thing as a table, but style sheets can be used to create tables. So you get something that looks like this when the xml is opened in a browser:

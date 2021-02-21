@@ -8,6 +8,8 @@ categories:
 tags:
   - ANOVA
 draft: true 
+summary: |
+  A walk through of the theory of an ANOVA with graphs. 
 ---
 
 
@@ -87,7 +89,7 @@ Similarly we had 20 points to get 2 group means in our calculation of <span clas
 <center>
 <span class="math inline">\(MS_{Explained} =\)</span> 245
 </center>
-Now with the mean squared error we can calculate the test statistic. The test statistic is the value we can plug into a distribution to get the probability of the null hypothesis. It is calculated by dividing the explained mean square error by the unexplained mean square error.
+Now with the mean squared error we can calculate the test statistic. The test statistic is the value we can plug into a distribution to get the probability of the null hypothesis. For ANOVA’s we use the F distribution. This distribution is characterized by two degrees of freedom. We use the <span class="math inline">\(F(K-1, N-K)\)</span> as the probability distribution. To get the test statistic for this distribution we divide the explained mean square error by the unexplained mean square error.
 <span class="math display">\[ F = \frac{SS_{Unexplained}}{SS_{Explained}}\]</span>
 <center>
 <span class="math inline">\(F =\)</span> 20.027
