@@ -8,10 +8,15 @@ categories:
 tags:
   - ggplot
   - tidyr
+summary: |
+  A common date transformation I need to do with dates is to convert the data from just a list of events to weekly numbers. To do this I need to expand the dates for each group.
 ---
 
 
 Since the start of the pandemic I have been working on and off on covid data. One of the defining features of these data sets is the start date for each country is different. We are looking at events that happen after the start of the pandemic, but covid reached each country at different times so we end up with a data set that looks something like this: 
+
+
+
 ```{r message=FALSE}
 library(dplyr)
 library(tidyr)
