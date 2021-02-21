@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>ggplot on A Hugo website</title>
+    <title>ggplot on Statasaurus - R and Stats Blog</title>
     <link>/tags/ggplot/</link>
-    <description>Recent content in ggplot on A Hugo website</description>
+    <description>Recent content in ggplot on Statasaurus - R and Stats Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Sun, 31 Jan 2021 00:00:00 +0000</lastBuildDate><atom:link href="/tags/ggplot/index.xml" rel="self" type="application/rss+xml" />
@@ -13,8 +13,7 @@
       <pubDate>Sun, 31 Jan 2021 00:00:00 +0000</pubDate>
       
       <guid>/2021/01/31/expanding-dates-for-groups-with-differing-date-ranges/</guid>
-      <description>Since the start of the pandemic I have been working on and off on covid data. One of the defining features of these data sets is the start date for each country is different. We are looking at events that happen after the start of the pandemic, but covid reached each country at different times so we end up with a data set that looks something like this:
-library(dplyr) library(tidyr) library(lubridate) library(ggplot2) library(purrr) library(rbenchmark) data&amp;lt;- tribble( ~country, ~event_date, ~count, &amp;quot;United Kingdom&amp;quot;, &amp;quot;3/08/2020&amp;quot;, 1, &amp;quot;United Kingdom&amp;quot;, &amp;quot;4/15/2020&amp;quot;, 2, &amp;quot;United Kingdom&amp;quot;, &amp;quot;6/23/2020&amp;quot;, 3, &amp;quot;United Kingdom&amp;quot;, &amp;quot;7/03/2020&amp;quot;, 4, &amp;quot;United Kingdom&amp;quot;, &amp;quot;10/31/2020&amp;quot;, 5, &amp;quot;South Africa&amp;quot;, &amp;quot;6/14/2020&amp;quot;, 1, &amp;quot;South Africa&amp;quot;, &amp;quot;8/06/2020&amp;quot;, 2, &amp;quot;South Africa&amp;quot;, &amp;quot;9/23/2020&amp;quot;, 3, &amp;quot;South Africa&amp;quot;, &amp;quot;12/31/2020&amp;quot;, 4, &amp;quot;Italy&amp;quot;, &amp;quot;2/16/2020&amp;quot;, 5, &amp;quot;Italy&amp;quot;, &amp;quot;3/09/2020&amp;quot;, 6, &amp;quot;Italy&amp;quot;, &amp;quot;8/27/2020&amp;quot;, 7, &amp;quot;Italy&amp;quot;, &amp;quot;10/18/2020&amp;quot;, 8, &amp;quot;Italy&amp;quot;, &amp;quot;11/30/2020&amp;quot;, 9 ) %&amp;gt;% mutate(event_date = mdy(event_date), count = as.</description>
+      <description>A common date transformation I need to do with dates is to convert the data from just a list of events to weekly numbers. To do this I need to expand the dates for each group.</description>
     </item>
     
   </channel>

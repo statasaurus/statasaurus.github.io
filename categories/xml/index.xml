@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>XML on A Hugo website</title>
+    <title>XML on Statasaurus - R and Stats Blog</title>
     <link>/categories/xml/</link>
-    <description>Recent content in XML on A Hugo website</description>
+    <description>Recent content in XML on Statasaurus - R and Stats Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Sun, 07 Feb 2021 00:00:00 +0000</lastBuildDate><atom:link href="/categories/xml/index.xml" rel="self" type="application/rss+xml" />
@@ -13,7 +13,7 @@
       <pubDate>Sun, 07 Feb 2021 00:00:00 +0000</pubDate>
       
       <guid>/2021/02/07/reading-in-tables-from-xml-documents/</guid>
-      <description>One of the rather idiosyncratic things about working in pharma (although I am sure this is true for other highly regulated environments) is systems stay around for a while before they are replaced. Because of these old systems, this week I ran into the need to read in a bunch of tables from an xml document. For those who have never used an xml document, technically there isn’t such as thing as a table, but style sheets can be used to create tables.</description>
+      <description>Reading in tables from XML documents using the XML and purrr packages.</description>
     </item>
     
   </channel>
