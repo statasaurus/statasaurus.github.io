@@ -296,7 +296,7 @@ plot +
            label = "Unexplained\nVariance") +
   annotate("text", x = 6, y = highlite$y2_res2 - (highlite$y2_res2 - highlite$y1_res2)/2, 
            label = "Explained\nVariance")
-eta = paste0(round(ss_error/ss_total*100), "%")
+eta = paste0(round(ss_beween/ss_total*100), "%")
 ```
 From the first plot we saw that the $SS_{Total}$ is calculated by measuring the distance from the overall to a point. And we can see how the $SS_{Expained}$ and the $SS_{Unexpained}$ add together to equal the $SS_{Total}$ 
 
