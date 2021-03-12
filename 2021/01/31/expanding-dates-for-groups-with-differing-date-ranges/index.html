@@ -57,6 +57,8 @@ library(lubridate)
 library(ggplot2)
 library(purrr)
 library(rbenchmark)
+# Load in plot theme for 
+source(&quot;../../plot_options.R&quot;)
 
 data&lt;- tribble(
   ~country,         ~event_date,   ~count,
@@ -81,10 +83,11 @@ data&lt;- tribble(
 <pre class="r"><code>ggplot(data, aes(x = event_date, y = count, color = country)) + 
   geom_line() +
   guides(color = guide_legend(&quot;Country&quot;)) +
+  scale_color_blog() +
   scale_y_continuous(breaks=seq(1, 10, by = 2)) + 
   xlab(&quot;Country&quot;) +
   ylab(&quot;Count&quot;) +
-  theme_bw() </code></pre>
+  my_theme()</code></pre>
 <p><img src="/2021/01/31/expanding-dates-for-groups-with-differing-date-ranges/index_files/figure-html/unnamed-chunk-2-1.png" width="672" />
 One option is to convert the data from continuous to discrete. But, this can make it harder to make summaries across groups later. The other option is to convert the data from event based, to weekly. This will make it easier to use in future calculations and will improve the graph. Tidyr has some nice functions which makes this easy.</p>
 <pre class="r"><code>min_date &lt;- data %&gt;% pull(event_date) %&gt;% min()
@@ -150,10 +153,11 @@ head(data_weekly)</code></pre>
   geom_line() +
   guides(color = guide_legend(&quot;Country&quot;)) +
   scale_y_continuous(breaks=seq(1, 10, by = 2)) + 
+  scale_color_blog() +
   xlab(&quot;Country&quot;) +
   ylab(&quot;Count&quot;) +
   ggtitle(&quot;Count Data&quot;) + 
-  theme_bw() </code></pre>
+  my_theme()</code></pre>
 <p><img src="/2021/01/31/expanding-dates-for-groups-with-differing-date-ranges/index_files/figure-html/unnamed-chunk-7-1.png" width="672" /></p>
 
 

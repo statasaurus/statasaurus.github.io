@@ -51,52 +51,52 @@
 
 
 <p>Almost everything in this world has some variability. A bit of randomness that makes one flower different, one dog look different, and each person unique. In statistics, we leverage this randomness when creating models and testing hypotheses. This blog post is the first of a series visually working through different statistical models. I am going to start with ANOVA as it is one of the most basic models and often times the first model people are introduced to.</p>
-<p>The basic question of the ANOVA model is, does the mean of group one equal to the mean of group two. You might be thinking, why would testing the means of two groups have anything to do with variance. And hey, that is a fair question. The reason they are connected, is because of the law of total variance, which basically says variance comes in two kinds, the explained and the unexplained. If we can figure out how much of the variance of the thing we are measuring is due to the groups (ie. explained) and how much of the variance is just random chance (i.e. unexplained) then can get the probability the two groups are the same. If that probability is low then we can reject the notion that the two groups are the same.</p>
+<p>The basic question of the ANOVA model is: “Does the mean of group one equal to the mean of group two?”. You might be wondering why testing the means of two groups has anything to do with variance. And hey, that is a fair question. The reason they are connected is because of the law of total variance, which basically says variance comes in two kinds; the explained and the unexplained. If we can figure out how much of the variance of the thing we are measuring is due to the groups (i.e. explained) and how much of the variance is just random chance (i.e. unexplained) then we can get the probability the two groups are the same. If that probability is low then we can reject the notion that the two groups are the same.</p>
 <div id="example-data" class="section level3">
 <h3>Example Data</h3>
 <p>Now as promised some plots. First let’s start with the scenario where the groups are truly different and have a low variance.
 <img src="/2021/02/18/anova-for-visual-learners/index_files/figure-html/unnamed-chunk-1-1.png" width="672" />
 Looking at the plot there are 20 data points with a variability of 24.5. It isn’t super clear that two groups make up the data, but let’s add some color to tell the two groups apart.
-<img src="/2021/02/18/anova-for-visual-learners/index_files/figure-html/unnamed-chunk-2-1.png" width="672" />
-Now we can clearly see group 2 has higher values than group 1. This means that at least some of the variability we see in y can be explained by the groups! This happens all the time in real life. For example if I were to weight some apples and pineapples, the part of variability in the weights would be due to the fact that pineapples and apples are different fruits. So we can explain the part of the variability. The same is happening here. We measured y, which had a variability of 24.5. From looking at the plot we can see it is like the groups are causing some of the variability, but now the question is how much. To answer that question we are going to need to do an Analysis Of VariAnce (ANOVA)</p>
+<img src="/2021/02/18/anova-for-visual-learners/index_files/figure-html/unnamed-chunk-2-1.png" width="672" /></p>
+<p>Now we can clearly see group 2 has higher values than group 1. This means that at least some of the variability we see in y can be explained by the groups! This happens all the time in real life. For example if I were to weigh some apples and pineapples, then part of variability in the weights would be due to the fact that pineapples and apples are different fruits. So we can explain that part of the variability. The same is happening here. We measured y, which had a variability of 24.5. From looking at the plot we can see it is like the groups are causing some of the variability, but now the question is how much. To answer that question we are going to need to do an Analysis Of VariAnce (ANOVA)</p>
 <p>The basic equation we use in ANOVA is:</p>
 <p><span class="math display">\[ SS_{Total} = SS_{Explained}+SS_{Unexplained}\]</span></p>
 <p>Where <span class="math inline">\(SS_*\)</span> stands for sum of squares.
-The <strong>sum of square is a unscaled measure of variability</strong>.</p>
+The <strong>sum of squares is a unscaled measure of variability</strong>.</p>
 </div>
-<div id="total-sum-of-square" class="section level3">
-<h3>Total Sum of Square</h3>
+<div id="total-sum-of-squares" class="section level3">
+<h3>Total Sum of Squares</h3>
 <p>Graphically, variability is just the distance between two points. So if we want to look at the total sum of squares, the first step is to get a sense of the how each point varies from the overall mean. We do this by getting the distance between each point and the mean. This distance is called the residual. Each residual is represented below on the plot, with an orange dashed line.</p>
 <img src="/2021/02/18/anova-for-visual-learners/index_files/figure-html/SS%20Total-1.png" width="672" />
 To get a single number we are going to add up all the residuals, but because the residuals are always the value minus the mean (<span class="math inline">\(r = y - \hat{y}\)</span>), we have to square this value so it is always positive. Adding together all of these squared residuals gives us the total deviation from the mean.
-This values is the sum of square <span class="math inline">\(SS_{Total}\)</span>. The equation for this is:
+This value is the sum of square <span class="math inline">\(SS_{Total}\)</span>. The equation for this is:
 <span class="math display">\[SS_{Total} = \sum{(X_{ij}-\bar{X})}\]</span>
 <center>
 <span class="math inline">\(SS_{Total} =\)</span> 465.2
 </center>
 </div>
-<div id="unexpalined-sum-of-square" class="section level3">
-<h3>Unexpalined Sum of Square</h3>
+<div id="unexpalined-sum-of-squares" class="section level3">
+<h3>Unexpalined Sum of Squares</h3>
 <p>To calculate the unexplained variability we need to figure out how much deviation is left over when we do account for groups. We do this by measuring For the variance not explained by the groups. The calculation is basically the same as the <span class="math inline">\(SS_{Total}\)</span>, but instead of using the overall mean we use the group means. We can see this graphically by drawing the within group residuals.</p>
 <p><img src="/2021/02/18/anova-for-visual-learners/index_files/figure-html/SS%20Error-1.png" width="672" /></p>
-<p>This shows the unexplained variance because the difference between one groups mean and the overall mean is the explained variance. So, after account for the different means of each group, any left over variability is considered unexplained. As before, to get the sum of squares, we square each residual and sum them. The equation is as follows:</p>
+<p>This shows the unexplained variance because the difference between one groups mean and the overall mean is the explained variance. So, after accounting for the different means of each group, any left over variability is considered unexplained. As before, to get the sum of squares, we square each residual and sum them. The equation is as follows:</p>
 <span class="math display">\[SS_{Unexplained} = \sum{(X_{ij}-\bar{X_j})}\]</span>
 <center>
 <span class="math inline">\(SS_{Unexplained} =\)</span> 220.2
 </center>
-<p>The value is also call the sum of squares within groups, or sum of square of the error.
+<p>The value is also called the sum of squares within groups, or sum of squares of the error.
 <span class="math display">\[SS_{Unexplained} = SS_{Within} = SS_{Error}\]</span>
 ### Sum of Squares Explained
-The graphically the explained variance is the distance between the mean of the groups and the overall mean. We can create this by combining the two plots above and drawing our residual lines between the mean of the groups and the mean overall.
+Graphically the explained variance is the distance between the mean of the groups and the overall mean. We can create this by combining the two plots above and drawing our residual lines between the mean of the groups and the mean overall.
 <img src="/2021/02/18/anova-for-visual-learners/index_files/figure-html/unnamed-chunk-3-1.png" width="672" />
-Just like the previous sum of squared equations, we need to square the residuals and add them up. The one difference, is because we are using means. Means contain information from multiple points, so we need to account for that by multiple by the number of subjects in each group. This makes the equation as follows:</p>
+Just like the previous sum of squares equations, we need to square the residuals and add them up. The one difference is because we are using means. Means contain information from multiple points, so we need to account for that by multiplying by the number of subjects in each group. This makes the equation as follows:</p>
 <span class="math display">\[SS_{Explained} = \sum{n_j(\bar{X_j}-\bar{X})}\]</span>
 <center>
 <span class="math inline">\(SS_{Explained} =\)</span> 245
 </center>
-<p>Now we have all the parts we can put them togther graphically and see how it works. The original equations is:
+<p>Now we have all the parts we can put them togther graphically and see how it works. The original equation is:
 <span class="math display">\[ SS_{Total} = SS_{Explained}+SS_{Unexplained}\]</span>
-The sum of squared explained is also known as sum of squares between groups and sum of squares treatment.
+The sum of squares explained is also known as sum of squares between groups and sum of squares treatment.
 <span class="math display">\[SS_{Explained} = SS_{Between} = SS_{Treatment}\]</span></p>
 </div>
 <div id="sum-of-squares-equation" class="section level3">
@@ -104,19 +104,19 @@ The sum of squared explained is also known as sum of squares between groups and 
 <p>If we follow a single subject we can see how this all adds together.
 <img src="/2021/02/18/anova-for-visual-learners/index_files/figure-html/Final%20SS-1.png" width="672" />
 From the first plot we saw that the <span class="math inline">\(SS_{Total}\)</span> is calculated by measuring the distance from the overall to a point. And we can see how the <span class="math inline">\(SS_{Expained}\)</span> and the <span class="math inline">\(SS_{Unexpained}\)</span> add together to equal the <span class="math inline">\(SS_{Total}\)</span></p>
-<p>With the basic sum of square equation defined we can start to answer our original question.</p>
+<p>With the basic sum of squares equation defined we can start to answer our original question.</p>
 <p>The first question of what proportion of the variance can be explained is solved by just taking the explained sum of squares as a proportion of the total sum of squares. This is usually called eta
 <span class="math display">\[\eta = \frac {SS_{Explained}} {SS_{Total}}\]</span>
-So for this sample the groupings explain 53% of the observed variance. We can make a quick pie chat to show this:
-<img src="/2021/02/18/anova-for-visual-learners/index_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
+So for this sample the groupings explain 53% of the observed variance. We can make a quick pie chat to show this:</p>
+<img src="/2021/02/18/anova-for-visual-learners/index_files/figure-html/unnamed-chunk-4-1.png" width="672" />
+</div>
 </div>
 <div id="anova" class="section level3">
 <h3>ANOVA</h3>
-<p>Now that we understand how the variance can be separated, we can test if the two groups are the same. We do that by testing if the variance between groups is significantly larger than the variance within a group. Because we are testing if the groups are the same the null hypothesis is :
+<p>Now that we understand how the variance can be separated, we can test if the two groups are the same. We do that by testing if the variance between groups is significantly larger than the variance within a group. Because we are testing if the groups are the same the null hypothesis is:
 <span class="math display">\[ H_0 = \bar{X}_{grp 1} = \bar{X}_{grp 2}\]</span>
-First, we need to scale our unscaled measures of variance. We do this my dividing the our sum of squares by their respective degrees of freedom. This is called the mean square error (<span class="math inline">\(MS_*\)</span>)
-Two values went into our calculation of <span class="math inline">\(SS_{Explained}\)</span>, so we have <span class="math inline">\(K-1 = 2-1 = 1\)</span> the degrees of freedom.
-Similarly we had 20 points to get 2 group means in our calculation of <span class="math inline">\(SS_{Unexplained}\)</span>, so we have <span class="math inline">\(N-K = 20 - 2 = 18\)</span> degrees of freedom.</p>
+First, we need to scale our unscaled measures of variance. We do this by dividing the sum of squares by their respective degrees of freedom. This is called the mean square error (<span class="math inline">\(MS_*\)</span>)</p>
+<p>Similarly we had 20 points to get 2 group means in our calculation of <span class="math inline">\(SS_{Unexplained}\)</span>, so we have <span class="math inline">\(N-K = 20 - 2 = 18\)</span> degrees of freedom.</p>
 <span class="math display">\[MS_{Explained} = \frac{SS_{Explained}}{K-1}\]</span>
 <center>
 <span class="math inline">\(MS_{Explained} =\)</span> 245
@@ -144,7 +144,7 @@ Now with the mean squared error we can calculate the test statistic. The test st
 <p>ANOVA is fundamental to frequentist statistics. The theories it uses underpins most of the models you will run across. But there are two assumptions you need to be aware of:</p>
 <ul>
 <li>1: <strong>Homogeneity of variance</strong>: which basically means the variance among the groups are about the same. There are formal tests for this, but it is also okay to just eye the within group residual plots.</li>
-<li>2: <strong>Assume Normal Data</strong> : this can be tested by looking at a histogram of the observed data.</li>
+<li>2: <strong>Assume Normal Data</strong>: this can be tested by looking at a histogram of the observed data.</li>
 </ul>
 </div>
 
