@@ -71,8 +71,14 @@ variance_pie <- function(df){
                   label = paste0(round(percentage), "%")), color = "white") +
     scale_fill_blog("hot") +
     guides(fill = guide_legend("Variance")) +
-    theme_void() +
-    my_theme()
+    xlab("")+
+    ylab("")+
+    # theme_void() +
+    my_theme() +
+    theme(axis.text = element_blank(),
+        axis.ticks = element_blank(),
+        panel.grid = element_blank(),
+        panel.border = element_blank())
 }
 
 prob_plot <- function(df){
@@ -308,7 +314,7 @@ So for this sample the groupings explain `r eta` of the observed variance. We ca
 
 
 ```{r echo = FALSE}
-variance_pie(plot_df)
+variance_pie(plot_df) 
 
 ```
 </div>
@@ -333,10 +339,10 @@ $MS_{Explained} =$ `r msb`
 </center>
 $$MS_{Unexplained} = \frac{SS_{Unexplained}}{N-K}$$
 <center>
-$MS_{Explained} =$ `r msb`
+$MS_{Unexplained} =$ `r msw`
 </center>
 Now with the mean squared error we can calculate the test statistic. The test statistic is the value we can plug into a distribution to get the probability of the null hypothesis. For ANOVA's we use the F distribution. This distribution is characterized by two degrees of freedom. We use the $F(K-1, N-K)$ as the probability distribution. To get the test statistic for this distribution we divide the explained mean square error by the unexplained mean square error. 
-$$ F = \frac{SS_{Unexplained}}{SS_{Explained}}$$
+$$ F = \frac{MS_{Unexplained}}{MS_{Explained}}$$
 <center> 
 $F =$ `r round(f, 3)`
 </center> 
