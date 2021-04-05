@@ -4,6 +4,55 @@
     
         
         <url>
+            <loc>/2021/02/28/an-ode-to-the-unsung-functions-of-purrr/</loc>
+            <lastmod>2021-02-28T00:00:00+00:00</lastmod>
+        </url>
+        
+    
+        
+        <url>
+            <loc>/categories/</loc>
+            <lastmod>2021-02-28T00:00:00+00:00</lastmod>
+        </url>
+        
+    
+        
+        <url>
+            <loc>/post/</loc>
+            <lastmod>2021-02-28T00:00:00+00:00</lastmod>
+        </url>
+        
+    
+        
+        <url>
+            <loc>/tags/purrr/</loc>
+            <lastmod>2021-02-28T00:00:00+00:00</lastmod>
+        </url>
+        
+    
+        
+        <url>
+            <loc>/</loc>
+            <lastmod>2021-02-28T00:00:00+00:00</lastmod>
+        </url>
+        
+    
+        
+        <url>
+            <loc>/tags/</loc>
+            <lastmod>2021-02-28T00:00:00+00:00</lastmod>
+        </url>
+        
+    
+        
+        <url>
+            <loc>/categories/tidy-data/</loc>
+            <lastmod>2021-02-28T00:00:00+00:00</lastmod>
+        </url>
+        
+    
+        
+        <url>
             <loc>/tags/anova/</loc>
             <lastmod>2021-02-18T00:00:00+00:00</lastmod>
         </url>
@@ -18,27 +67,6 @@
     
         
         <url>
-            <loc>/categories/</loc>
-            <lastmod>2021-02-18T00:00:00+00:00</lastmod>
-        </url>
-        
-    
-        
-        <url>
-            <loc>/post/</loc>
-            <lastmod>2021-02-18T00:00:00+00:00</lastmod>
-        </url>
-        
-    
-        
-        <url>
-            <loc>/</loc>
-            <lastmod>2021-02-18T00:00:00+00:00</lastmod>
-        </url>
-        
-    
-        
-        <url>
             <loc>/categories/statistics/</loc>
             <lastmod>2021-02-18T00:00:00+00:00</lastmod>
         </url>
@@ -46,21 +74,7 @@
     
         
         <url>
-            <loc>/tags/</loc>
-            <lastmod>2021-02-18T00:00:00+00:00</lastmod>
-        </url>
-        
-    
-        
-        <url>
             <loc>/tags/benchmark/</loc>
-            <lastmod>2021-02-07T00:00:00+00:00</lastmod>
-        </url>
-        
-    
-        
-        <url>
-            <loc>/tags/purrr/</loc>
             <lastmod>2021-02-07T00:00:00+00:00</lastmod>
         </url>
         
@@ -96,13 +110,6 @@
         
         <url>
             <loc>/tags/ggplot/</loc>
-            <lastmod>2021-01-31T00:00:00+00:00</lastmod>
-        </url>
-        
-    
-        
-        <url>
-            <loc>/categories/tidy-data/</loc>
             <lastmod>2021-01-31T00:00:00+00:00</lastmod>
         </url>
         
