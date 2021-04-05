@@ -73,7 +73,6 @@ variance_pie <- function(df){
     guides(fill = guide_legend("Variance")) +
     xlab("")+
     ylab("")+
-    # theme_void() +
     my_theme() +
     theme(axis.text = element_blank(),
         axis.ticks = element_blank(),
@@ -92,8 +91,8 @@ prob_plot <- function(df){
   prob_tbl %>% 
     ggplot(aes(x=x, y=prob)) + 
     geom_line(color = my_colors("black")) + 
-    ggtitle("Probability of Observing the Same Difference or More\nDue to Random Sampling If the Null Hypothesis is True") +
-    xlab("") +
+    ggtitle("Probability of Observing the Same Difference or\nMore Due to Random Sampling If the Null\nHypothesis is True") +
+    xlab(" ") +
     annotate("segment", x = f, xend = f, y = 0, yend = test, color = my_colors("green"))+
     annotate("text", x = if_else(f< 3, 4, f),  
                                  y = test + 0.05, color = my_colors("green"), 
@@ -313,9 +312,11 @@ $$\eta = \frac {SS_{Explained}} {SS_{Total}}$$
 So for this sample the groupings explain `r eta` of the observed variance. We can make a quick pie chat to show this: 
 
 
-```{r echo = FALSE}
-variance_pie(plot_df) 
-
+```{r echo = FALSE, class.source="article-content"}
+var_plot <- variance_pie(plot_df) 
+ggdraw(var_plot) +
+    my_theme() +
+  theme(panel.border = element_rect(colour = my_colors("background"), fill = NA))
 ```
 </div>
 
@@ -339,7 +340,7 @@ $MS_{Explained} =$ `r msb`
 </center>
 $$MS_{Unexplained} = \frac{SS_{Unexplained}}{N-K}$$
 <center>
-$MS_{Unexplained} =$ `r msw`
+$MS_{Unexplained} =$ `r round(msw, 3)`
 </center>
 Now with the mean squared error we can calculate the test statistic. The test statistic is the value we can plug into a distribution to get the probability of the null hypothesis. For ANOVA's we use the F distribution. This distribution is characterized by two degrees of freedom. We use the $F(K-1, N-K)$ as the probability distribution. To get the test statistic for this distribution we divide the explained mean square error by the unexplained mean square error. 
 $$ F = \frac{MS_{Unexplained}}{MS_{Explained}}$$
@@ -382,9 +383,10 @@ plot1 <- df2 %>%
   my_theme()
 plot2 <- variance_pie(df2)
 plot3 <- prob_plot(df2)
-test <- plot_grid(plot2, plot3, labels = "")
 bottom_row <- plot_grid(plot2, plot3)
-plot_grid(plot1, bottom_row, ncol = 1)
+plot_grid(plot1, bottom_row, ncol = 1) +
+  my_theme() +
+  theme(panel.border = element_rect(colour = my_colors("background"), fill = NA))
 
 
 ```

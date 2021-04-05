@@ -1,0 +1,64 @@
+---
+title: An Ode to the Unsung Functions of Purrr
+author: Christina Fillmore
+date: '2021-02-28'
+slug: an-ode-to-the-unsung-functions-of-purrr
+categories:
+  - tidy-data
+tags:
+  - purrr
+summary: |
+  Exploring the wonderful uses for keep and discard, the "vector filtering functions" 
+---
+```{r, echo=FALSE}
+library(purrr)
+library(stringr)
+```
+
+When most people think of the purrr package they think of map, or maybe flatten if they are really into lists. But, I am here to make the case, that keep and discard are the most under valued functions in purrr. 
+
+The origin of my love for keep and discard started about two years ago, when I was still somewhat new to the tidyverse. I was writing an internal package and I needed to "filter a vector". It seemed strange to me there wasn't an obvious solution for this problem; filter is one of the founding functions of dplry, how could it not exist!? At this point, while I knew how to do it in base R, I felt the uncompromising need of the newly converted, to write exclusively in the tidyverse. So, after asking a few friends, I got to googling and still couldn't find anything. And, as is the way, I stumbled upon keep and discard while looking through the documentation for a totally different question. Which, has since lead me to my current believe thatnkeep and discard are the most unsung functions in purrr. 
+
+Keep and discard dramatically increase the readability of code, without sacrificing speed. All you need to do is to use a function that returns a vector of booleans, i.e. `is.na`. This can be a function you have created or a function from some other package. Here I created function to test if a value is even or not. 
+```{r}
+is_even <- function(x){
+  x %% 2 == 0 
+}
+
+```
+The `keep` function keeps all TRUE elements and `discard` removes all TRUE elements from the vector. 
+```{r}
+vec <- c(1:10)
+#Returns only even numbers
+vec %>% keep(is_even)
+#Returns only odd numbers
+vec %>% discard(is_even)
+```
+To do the same thing in base R you would need to call `vec` twice, which can make it difficult to read. 
+```{r}
+# Base method
+vec[is_even(vec)]
+```
+
+The other great thing about about `keep` and `discard` is they work just as well with lists as vectors. These functions paired with an anonymous function is super helpful when sorting through complex lists.
+```{r}
+dummy_list <- list(a = mtcars, b = iris, c = NULL)
+
+head(dummy_list)
+```
+
+In this dummy example list, I have 2 different datasets and a null input. If I wanted to remove the null value I can just use discard like I would on a vector. 
+```{r}
+dummy_list %>% discard(is.null) %>% head()
+```
+But, if I need something more complicated like, I need all datasets to have at least 100 observations I could use keep with an anonymous function. 
+```{r}
+dummy_list %>% 
+  keep(function(x){
+    # Removes null and small datasets 
+    !is.null(x) && nrow(x) > 100
+  }) %>% 
+  head()
+```
+
+I hope this little post ensures `keep` and `discard` get a little bit more attention. Cause I find they really do vastly increase the reability of code.  
